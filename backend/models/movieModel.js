@@ -2,10 +2,10 @@ const mongoose = require('mongoose')
 //importamos mongoose
 
 const movieSchema = mongoose.Schema({
-    //esto une la tabla de autos con la del user
-    admin:{
+    //esto une la tabla de peliculas con la del user
+    user:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Admin',
+        ref: 'User',
         required: true
     },
     genre: {
