@@ -12,20 +12,20 @@ const getMovies = asyncHandler(async (req, res) => {
   })
   
 // Crear una película
-const setMovie = asyncHandler(async (req, res) => {
-  try {   
-    const userId = req.user._id
+const setMovie = asyncHandler (async (req, res) => {
+ try{   
+  const userId = req.user._id
     const { genre, adult, backdrop_path, original_language, title, overview, popularity, poster_path, release_date, video, likes, link, trailer } = req.body
-    if (!req.body) {
+    if(!req.body) {
       res.status(400)
       throw new Error("All the fields are required")
     }
-    if (!req.user.isAdmin) {
+    if(!req.user || !req.user.isAdmin === true) {
       res.status(401)
       throw new Error('Authentication failed: admin not found in request')
     }
     const movie = new Movie({
-      admin: userId,
+      user: userId,
       genre,
       adult,
       backdrop_path,
@@ -45,8 +45,8 @@ const setMovie = asyncHandler(async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Server Error' })
   }
+    //respuesta del servidor si se cumplen las especificaciones
 })
-
 
 const updateMovie = asyncHandler(async (req, res) => {
   const { id } = req.params
@@ -55,7 +55,7 @@ const updateMovie = asyncHandler(async (req, res) => {
     if (!movie) {
       return res.status(404).json({ message: 'Película no encontrada' })
     }
-    if (!req.user.isAdmin) {
+    if (!req.user || !req.user.isAdmin === true) {
       return res.status(401).json({ message: 'Solo los administradores pueden actualizar películas' })
     }
     const updatedMovie = await Movie.findByIdAndUpdate(id, req.body, { new: true })
@@ -67,16 +67,15 @@ const updateMovie = asyncHandler(async (req, res) => {
 
 // Borrar una película
 const deleteMovie = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const movie = await Movie.findById(req.params.id)
   try {
-    const movie = await Movie.findById(id)
     if (!movie) {
-      return res.status(404).json({ message: 'Película no encontrada' });
+      return res.status(404).json({ message: 'Película no encontrada' })
     }
-    if (!req.user.isAdmin || req.user._id !== movie.admin.toString()) {
+    if (req.user.isAdmin !== true && req.user._id !== movie.user.toString()) {
       return res.status(401).json({ message: 'Solo el administrador puede eliminar esta película' });
     }
-    await Movie.findByIdAndDelete(id);
+    await Movie.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Película eliminada correctamente' });
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar la película', error });
