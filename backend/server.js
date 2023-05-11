@@ -15,18 +15,5 @@ app.use(express.urlencoded({ extended: false}))
 app.use('/api/users', require('./routes/userRoutes'))
 app.use('/api/movies', require('./routes/movieRoutes'))
 
-// Ruta para reproducir el video de YouTube
-app.get('/video', (req, res) => {
-    const videoUrl = req.query.url;
-    res.header('Access-Control-Allow-Origin', '*'); // Agregar la cabecera
-    res.send(`
-      <html>
-        <body>
-          <iframe width="560" height="315" src="${videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </body>
-      </html>
-    `);
-});
-
 app.use(errorHandler)
 app.listen(port, () => console.log(`Server iniciado en el puerto ${port}`))

@@ -48,10 +48,10 @@ const movieSchema = mongoose.Schema({
         type: Boolean,
         required: [true, 'Please let me know if it is a video']
     },
-    likes: {
-        type: Number,
-        required: [true, 'Please let me know how many likes does it have']
-    },
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     favorites: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

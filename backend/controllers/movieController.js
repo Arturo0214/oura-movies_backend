@@ -36,7 +36,6 @@ const setMovie = asyncHandler (async (req, res) => {
       poster_path,
       release_date,
       video,
-      likes,
       link,
       trailer
     })
@@ -75,16 +74,41 @@ const deleteMovie = asyncHandler(async (req, res) => {
     if (req.user.isAdmin !== true && req.user._id !== movie.user.toString()) {
       return res.status(401).json({ message: 'Solo el administrador puede eliminar esta película' });
     }
-    await Movie.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Película eliminada correctamente' });
+    await Movie.findByIdAndDelete(req.params.id)
+    res.status(200).json({ message: 'Película eliminada correctamente' })
   } catch (error) {
-    res.status(500).json({ message: 'Error al eliminar la película', error });
+    res.status(500).json({ message: 'Error al eliminar la película', error })
   }  
+})
+// Actualizar los likes de una película
+const setLikes = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  try {
+    const movie = await Movie.findById(id)
+    if (!movie) {
+      return res.status(404).json({ message: 'Película no encontrada' });
+    }
+    const userId = req.user._id
+    const userLiked = movie.likes.includes(userId)
+
+    if (userLiked) {
+      // Si el usuario ya dio like, lo eliminamos
+      movie.likes = movie.likes.filter((like) => like !== userId);
+    } else {
+      // Si el usuario no dio like, lo agregamos
+      movie.likes.push(userId)
+    }
+    const updatedMovie = await movie.save()
+    res.status(200).json(updatedMovie)
+  } catch (error) {
+    res.status(500).json({ message: 'Error al actualizar los likes de la película', error });
+  }
 })
   
 module.exports = { 
     getMovies, 
     setMovie, 
     updateMovie,
-    deleteMovie
+    deleteMovie, 
+    setLikes
 }
